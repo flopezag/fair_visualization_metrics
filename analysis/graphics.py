@@ -30,6 +30,9 @@ class Graphics:
         ax.plot(theta, case_data, color='#48BADD')
         ax.fill(theta, case_data, alpha=0.25, label='_nolegend_')
 
+        #BARRY added Setting ticks on the y-axis to integer values from 1 to 5
+        ax.set_yticks(np.arange(0, 5, 1))
+
         ax.xaxis.set_tick_params(pad=25, rotation=10)
         ax.set_varlabels(labels)
 

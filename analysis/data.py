@@ -78,7 +78,8 @@ class Data(object):
             'FDMIU1[SQ005]': 'RDA-I3-04M'
         }
 
-        self.fair_maturity_model_data = {fair_maturity_model[key]: int(self.raw_data['responses'][0][key])
+        #BARRY - Added -1 to the key as WFIP questionaire indexes at 1 and not 0 for lowest "not applicable" score
+        self.fair_maturity_model_data = {fair_maturity_model[key]: int(self.raw_data['responses'][0][key])-1
                                          for key in fair_maturity_model.keys()}
 
     def get_fdm_classification(self) -> None:
