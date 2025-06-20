@@ -11,6 +11,12 @@ This repository offers visualization tools to analyze FAIR levels across differe
 - **Bar-column charts** showing FAIRness level score (with side-by-side comparisons)
 - **Pie charts** showing distribution of priorities
 
+## Example Graphs
+
+<p align="center">
+  <img src="assets/spider_plot.png" alt="Spider Plot" width="45%" />
+  <img src="assets/bar_chart.png" alt="Bar Chart" width="45%" />
+</p>
 
 ---
 

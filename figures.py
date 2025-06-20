@@ -59,4 +59,6 @@ if __name__ == '__main__':
     if data2 is not None:
         gph.pie_chart(data2, data_name2)
 
+    gph.cumulative_proportion_bar_chart()
+
     plt.show()

@@ -28,6 +28,7 @@ class Data(object):
         self.FMMClassification_data_threshold = dict()
         self.FMMClassification_data_compliance_level = dict()
 
+        self.get_rda_human_readable_mapping()
         self.get_fair_maturity_model()
         self.get_fdm_classification()
         self.get_fairness_classification_per_indicator()
@@ -35,6 +36,52 @@ class Data(object):
         self.classification_data_normalized()
         self.classification_data_threshold()
         self.classification_data_compliance_level()
+
+    def get_rda_human_readable_mapping(self) -> None:
+        self.rda_mapping = {
+            'RDA-F1-01M': "Metadata is identified by a persistent identifier",
+            'RDA-F1-01D': "Data is identified by a persistent identifier",
+            'RDA-F1-02M': "Metadata is identified by a globally unique identifier",
+            'RDA-F1-02D': "Data is identified by a globally unique identifier",
+            'RDA-F2-01M': "Rich metadata is provided to allow discovery",
+            'RDA-F3-01M': "Metadata includes the identifier for the data",
+            'RDA-F4-01M': "Metadata is offered in such a way that it can be harvested and indexed",
+            "RDA-A1-01M": "Metadata contains information to enable the user to get access to the data",
+            "RDA-A1-02M": "Metadata can be accessed manually (i.e. with human intervention)",
+            "RDA-A1-02D": "Data can be accessed manually (i.e. with human intervention)",
+            "RDA-A1-03M": "Metadata identifier resolves to a metadata record",
+            "RDA-A1-03D": "Data identifier resolves to a digital object",
+            "RDA-A1-04M": "Metadata is accessed through standardised protocol",
+            "RDA-A1-04D": "Data is accessible through standardised protocol",
+            "RDA-A1-05D": "Data can be accessed automatically (i.e. by a computer program)",
+            "RDA-A1.1-01M": "Metadata is accessible through a free access protocol",
+            "RDA-A1.1-01D": "Data is accessible through a free access protocol",
+            "RDA-A1.2-01D": "Data is accessible through an access protocol that supports authentication and authorisation",
+            "RDA-A2-01M": "Metadata is guaranteed to remain available after data is no longer available",
+            "RDA-I1-01M": "Metadata uses knowledge representation expressed in standardised format",
+            "RDA-I1-01D": "Data uses knowledge representation expressed in standardised format",
+            "RDA-I1-02M": "Metadata uses machine-understandable knowledge representation",
+            "RDA-I1-02D": "Data uses machine-understandable knowledge representation",
+            "RDA-I2-01M": "Metadata uses FAIR-compliant vocabularies",
+            "RDA-I2-01D": "Data uses FAIR-compliant vocabularies",
+            "RDA-I3-01M": "Metadata includes references to other metadata",
+            "RDA-I3-01D": "Data includes references to other data",
+            "RDA-I3-02M": "Metadata includes references to other data",
+            "RDA-I3-02D": "Data includes qualified references to other data",
+            "RDA-I3-03M": "Metadata includes qualified references to other metadata",
+            "RDA-I3-04M": "Metadata include qualified references to other data",
+            "RDA-R1-01M": "Plurality of accurate and relevant attributes are provided to allow reuse",
+            "RDA-R1.1-01M": "Metadata includes information about the licence under which the data can be reused",
+            "RDA-R1.1-02M": "Metadata refers to a standard reuse licence",
+            "RDA-R1.1-03M": "Metadata refers to a machine-understandable reuse licence",
+            "RDA-R1.2-01M": "Metadata includes provenance information according to community-specific standards",
+            "RDA-R1.2-02M": "Metadata includes provenance information according to a cross-community language",
+            "RDA-R1.3-01M": "Metadata complies with a community standard",
+            "RDA-R1.3-01D": "Data complies with a community standard",
+            "RDA-R1.3-02M": "Metadata is expressed in compliance with a machine-understandable community standard",
+            "RDA-R1.3-02D": "Data is expressed in compliance with a machine-understandable community standard"
+        }
+
 
     def get_fair_maturity_model(self) -> None:
         fair_maturity_model = {
