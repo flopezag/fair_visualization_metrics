@@ -31,6 +31,9 @@ def example_data():
 
 
 if __name__ == '__main__':
+    
+    save_images = True
+    
     #data = example_data()
     data = Data(json_file="example.json")
     data2 = Data(json_file="hst.json")  # set to None if using only one data source
@@ -63,5 +66,12 @@ if __name__ == '__main__':
         gph.pie_chart(data2, data_name2)
 
     gph.cumulative_proportion_bar_chart()
+    
+    # Save all open figures
+    if save_images:
+        for i, fig_num in enumerate(plt.get_fignums()):
+            fig = plt.figure(fig_num)
+            fig.savefig(f"figure_{i}.png", dpi=300, bbox_inches='tight')
 
+    # Show them (optional, if you still want to view)
     plt.show()
