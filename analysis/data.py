@@ -15,7 +15,7 @@ class Data(object):
         self.response_id = self.raw_data['responses'][0]["id"]
         
         self.__pattern__ = re.compile(pattern=r"RDA-([FAIR]).+-.*", flags=0)
-
+        
         self.fair_maturity_model_data = dict()
         self.fairness_classification_per_indicator = dict()
         self.FMMClassification_data = dict()
@@ -28,6 +28,8 @@ class Data(object):
         self.FMMClassification_data_threshold = dict()
         self.FMMClassification_data_compliance_level = dict()
 
+        self.get_mqa_data()
+        self.get_meloda_data()
         self.get_rda_human_readable_mapping()
         self.get_fair_maturity_model()
         self.get_fdm_classification()
@@ -36,6 +38,146 @@ class Data(object):
         self.classification_data_normalized()
         self.classification_data_threshold()
         self.classification_data_compliance_level()
+    
+    def get_mqa_data(self) -> None:
+        mqa_scores = {}
+        mqa_scores['Findability'] = {}
+        mqa_scores['Findability']['MQAF1'] = 30.0
+        mqa_scores['Findability']['MQAF2'] = 30.0
+        mqa_scores['Findability']['MQAF3'] = 20.0
+        mqa_scores['Findability']['MQAF4'] = 20.0 #100 total
+
+        mqa_scores['Accessibility'] = {}
+        mqa_scores['Accessibility']['MQAA1'] = 50.0
+        mqa_scores['Accessibility']['MQAA2'] = 20.0
+        mqa_scores['Accessibility']['MQAA3'] = 30.0 #100 total
+
+        mqa_scores['Interoperability'] = {}
+        mqa_scores['Interoperability']['MQAI1'] = 20.0
+        mqa_scores['Interoperability']['MQAI2'] = 10.0
+        mqa_scores['Interoperability']['MQAI3'] = 10.0
+        mqa_scores['Interoperability']['MQAI4'] = 20.0
+        mqa_scores['Interoperability']['MQAI5'] = 20.0
+        mqa_scores['Interoperability']['MQAI6'] = 30.0 #110 total
+
+        mqa_scores['Reusability'] = {}
+        mqa_scores['Reusability']['MQAR1'] = 20.0
+        mqa_scores['Reusability']['MQAR2'] = 10.0
+        mqa_scores['Reusability']['MQAR3'] = 10.0
+        mqa_scores['Reusability']['MQAR4'] = 5.0
+        mqa_scores['Reusability']['MQAR5'] = 20.0
+        mqa_scores['Reusability']['MQAR6'] = 10.0 #75 total
+    
+        mqa_scores['Contextuality'] = {}
+        mqa_scores['Contextuality']['MQAC1'] = 5.0
+        mqa_scores['Contextuality']['MQAC2'] = 6.0
+        mqa_scores['Contextuality']['MQAC3'] = 7.0
+        mqa_scores['Contextuality']['MQAC4'] = 8.0 #26 total
+        
+        max_score = {}
+        max_score['Findability'] = 100
+        max_score['Accessibility'] = 100
+        max_score['Interoperability'] = 110
+        max_score['Reusability'] = 75
+        max_score['Contextuality'] = 26
+
+        Total_MQA_Points = 0.0
+        mqa_model_data = {}
+        normalised_mqa_model_data = {}
+
+        #Loop through each MQA category Findability, Accessibility, etc...
+        for catagory in mqa_scores.keys():
+            score_value = 0.0
+            check_count = 0.0
+            val = "No"
+            #Loop through each question in each category
+            for question in mqa_scores[catagory].keys():
+                #Count number of questions asked
+                check_count += 1.0
+                #Get resonse to question
+                val = self.raw_data['responses'][0][question]
+                #Count number of positive "Yes" responses for each category
+                if val == 'Yes':
+                    score_value += mqa_scores[catagory][question]
+            
+            #Create normalised value for yes reponses
+            #normnlised value = number of yes responses in category / number of questions asked in category
+            #val = round((score_value/check_count),2)
+            normalised_mqa_model_data[catagory] = score_value/max_score[catagory]
+
+            # NOT USED AT THE MOMENT - USING ABSOLUTE VALUES
+            #mqa_model_data[catagory] = score_value
+            #Total_MQA_Points += score_value        
+
+        self.mqa_model_data = normalised_mqa_model_data
+    
+    def get_meloda_data(self) -> None:
+        
+        meloda_scores = {}
+        meloda_scores['MELODA1'] = {}
+        meloda_scores['MELODA2'] = {}
+        meloda_scores['MELODA3'] = {}
+        meloda_scores['MELODA4'] = {}
+        meloda_scores['MELODA5'] = {}
+        meloda_scores['MELODA6'] = {}
+        meloda_scores['MELODA7'] = {}
+        meloda_scores['MELODA8'] = {}
+
+        meloda_scores['MELODA1']['Private use'] = 1
+        meloda_scores['MELODA1']['Non-commercial reuse'] = 3
+        meloda_scores['MELODA1']['Commercial reuse or no restrictions'] = 6
+
+        meloda_scores['MELODA2']['Web access or unique URL parameters to dataset'] = 1
+        meloda_scores['MELODA2']['Web Access unique with parameters to single data'] = 3 
+        meloda_scores['MELODA2']['API or query language'] = 6
+
+        meloda_scores['MELODA3']['Closed standard reusable and open non reusable'] = 1
+        meloda_scores['MELODA3']['Open standard reusable'] = 3
+        meloda_scores['MELODA3']['Open standard, individual metadata'] = 6
+
+        meloda_scores['MELODA4']['Own data model standardization'] = 1
+        meloda_scores['MELODA4']['Own ad hoc data model standardization published (harmonization)'] = 3
+        meloda_scores['MELODA4']['Local standardization'] = 6
+        meloda_scores['MELODA4']['Global standardization'] = 10
+
+        meloda_scores['MELODA5']['No geographic information'] = 1 
+        meloda_scores['MELODA5']['Simple or complex text field'] = 3
+        meloda_scores['MELODA5']['Coordinates or full geographical information'] = 6
+
+        meloda_scores['MELODA6']['Longer than 1 month'] = 1
+        meloda_scores['MELODA6']['Monthly. Updating period ranges from 1 month to 1 day'] = 3
+        meloda_scores['MELODA6']['Daily. Updating period ranges from 1 day to 1 hour'] = 6
+        meloda_scores['MELODA6']['Hour. Updating period ranges from 1 hour to 1 minute'] = 10 
+        meloda_scores['MELODA6']['Seconds. Updating period is lower than 1 minute'] = 15
+
+        meloda_scores['MELODA7']['No information about the reputation of the data source'] = 1
+        meloda_scores['MELODA7']['Statistics or reports published on users opinions'] = 3
+        meloda_scores['MELODA7']['Indicators or rankings on reputation of the data source'] = 6
+
+        meloda_scores['MELODA8']['Communication / dissemination not systematic'] = 1
+        meloda_scores['MELODA8']['Available resources on updates (i.e., RSS feed)'] = 3
+        meloda_scores['MELODA8']['Proactive dissemination / push dissemination (information automatic and timely)'] = 6
+
+        meloda_model = {
+            'MELODA1': 'License of data set',
+            'MELODA2': 'Access to data',
+            'MELODA3': 'Technical standard',
+            'MELODA4': 'Standardization',
+            'MELODA5': 'Geolocation content',
+            'MELODA6': 'Updating frequency',
+            'MELODA7': 'Reputation',
+            'MELODA8': 'Dissemination'
+        }
+
+        self.meloda_model_data = {}
+
+        # Precompute max values for each meloda_model[key] for later use in normalisation of results
+        max_values = {key: max(meloda_scores[key].values()) for key in meloda_model}
+
+        # Iterate over keys in meloda_model
+        for key in meloda_model:
+            # Calculate the rounded normalised score for each category from the WFIP questionaire store it in meloda_model_data
+            self.meloda_model_data[meloda_model[key]] = round(meloda_scores[key][self.raw_data['responses'][0][key]] / max_values[key], 2)
 
     def get_rda_human_readable_mapping(self) -> None:
         self.rda_mapping = {
