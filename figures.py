@@ -34,6 +34,39 @@ if __name__ == '__main__':
     
     save_images = True
     
+    es_pilot_old = Data(json_file="hidr.json")
+    de_pilot_old = Data(json_file="hst.json")
+    fi_pilot_old = Data(json_file="keypro.json")
+    ne_pilot_old = Data(json_file="pwn.json")
+    uk_pilot_old = Data(json_file="sww.json")
+    cy_pilot_old = Data(json_file="wbl.json")
+    
+    es_pilot_new = Data(json_file="hidr.json")
+    de_pilot_new = Data(json_file="hst.json")
+    fi_pilot_new = Data(json_file="keypro.json")
+    ne_pilot_new = Data(json_file="pwn.json")
+    uk_pilot_new = Data(json_file="sww.json")
+    cy_pilot_new = Data(json_file="wbl.json")
+    
+    data_old = {
+        "es pilot": es_pilot_old,
+        "de pilot": de_pilot_old,
+        "fi pilot": fi_pilot_old,
+        "ne pilot": ne_pilot_old,
+        "uk pilot": uk_pilot_old,
+        "cy pilot": cy_pilot_old,
+    }
+    
+    data_new = {
+        "es pilot": es_pilot_new,
+        "de pilot": de_pilot_new,
+        "fi pilot": fi_pilot_new,
+        "ne pilot": ne_pilot_new,
+        "uk pilot": uk_pilot_new,
+        "cy pilot": cy_pilot_new,
+    }
+    
+    
     #data = example_data()
     data = Data(json_file="example.json")
     data2 = Data(json_file="example_new.json")  # set to None if using only one data source
@@ -66,6 +99,9 @@ if __name__ == '__main__':
     #    gph.pie_chart(data2, data_name2)
 
     #gph.cumulative_proportion_bar_chart()
+    
+    gph.grouped_bar_chart(data_old, data_new, grouping="measure", model_data="MELODA5")
+    gph.grouped_bar_chart(data_old, data_new, grouping="pilot", model_data="MQA")
     
     # Save all open figures
     if save_images:
