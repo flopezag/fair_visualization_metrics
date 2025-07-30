@@ -59,40 +59,41 @@ class Graphics:
         # Create the color map from white to blue
         self.cmap = plt.cm.get_cmap('Blues')
 
-    def create_first_figure(self, category: str):
+    def create_first_figure(self, category: str | None):
         
-        if category != None:
+        if category is not None:
             ticks = [1, 2, 3, 4, 5]
             theta = radar_factory(num_vars=len(self.data.fairness_classification_per_indicator[category]),
-                                frame='polygon')
-            
+                                  frame='polygon')
+
             # Get the lists with the data
             rda_labels = list(self.data.fairness_classification_per_indicator[category].keys())
-            
-            # maps from RDA codes to human readable labels
+
+            # maps from RDA codes to human-readable labels
             long_labels = [self.data.rda_mapping[l] for l in rda_labels]
-            
+
             case_data = list(self.data.fairness_classification_per_indicator[category].values())
             if self.overlay_plots:
                 case_data_2 = list(self.data2.fairness_classification_per_indicator[category].values())
-                
+
         else:
-            category = "MELODA"
+            category = "MELODA5"
             ticks = [0.2, 0.4, 0.6, 0.8, 1.0]
             theta = radar_factory(num_vars=len(self.data.meloda_model_data.keys()),
-                                frame='polygon')
-            
-            # maps from RDA codes to human readable labels
+                                  frame='polygon')
+
+            # maps from RDA codes to human-readable labels
             long_labels = list(self.data.meloda_model_data.keys())
-            
+
             case_data = list(self.data.meloda_model_data.values())
             if self.overlay_plots:
                 case_data_2 = list(self.data2.meloda_model_data.values())
+
         # labels = list(model_data.keys())
         # #Get values for each category of radar plot
         # case_data = list(model_data.values())
 
-        # #This code creates the ticks/scale bar frrom 0 to 1 at 0.2 intervals
+        # #This code creates the ticks/scale bar from 0 to 1 at 0.2 intervals
         # tickvals = [i / 5 for i in range(11)]
 
         # #Draw radar plot
@@ -102,15 +103,13 @@ class Graphics:
         #         line_close=True,
         #         range_r=[0,1],
         #         color_discrete_sequence=plot_colour#['red'])
-        
-        
+
+
         # adds linebreaks to the labels for better readability on the graph
         labels = ['\n'.join(textwrap.wrap(label, width=30, 
                                     break_long_words=False, 
                                     break_on_hyphens=False))
                                     for label in long_labels]
-        
-        
 
         # Create the first radar chart in Figure 1
         fig, ax = plt.subplots(figsize=(20, 12), subplot_kw=dict(projection='radar'))
@@ -122,22 +121,22 @@ class Graphics:
                      fontsize=24,
                      color=self.cmap(1.0), 
                      weight='semibold')
-        
+
         # colors the axis of the spider/radar plot dark grey
         ax.xaxis.grid(True, color="dimgray")
         ax.yaxis.grid(True, color="dimgray")
 
         ax.plot(theta, case_data, color=self.color1, label=self.data_name if self.overlay_plots else None)
         ax.fill(theta, case_data, color=self.color1, alpha=0.25)
-        
+
         if self.overlay_plots:
             ax.plot(theta, case_data_2, color=self.color2, label=self.data2_name if self.overlay_plots else None)
             ax.fill(theta, case_data_2, color=self.color2, alpha=0.25)
-        
+
         # Defined ticks for radar plot
         ax.set_yticks(ticks)
         ax.set_varlabels(labels)
-                
+
         def pull_towards_centers(angle_rad, strength=0.1):
             """
             ONLY VISUAL EFFECT, NO EFFECT ON DATA
@@ -160,15 +159,12 @@ class Graphics:
                     return angle_rad
 
             # Decide which direction to pull
-            if 0 < angle_rad < math.pi:
-                target = math.pi / 2  # pull toward 90°
-            else:
-                target = 3 * math.pi / 2  # pull toward 270°
+            target = math.pi / 2 if 0 < angle_rad < math.pi else 3 * math.pi / 2
 
             # Weighted average between angle and target
             return (1 - strength) * angle_rad + strength * target
-                
-        
+
+
         def radar_plot_text_displacement(angle_rad, max_disp=1.5):
             """
             ONLY VISUAL EFFECT, NO EFFECT ON DATA
@@ -194,7 +190,7 @@ class Graphics:
 
             # Scale by max displacement
             displacement = displacement_factor * max_disp
-            
+
             return displacement
 
         # Define angles based on the number of labels
@@ -208,10 +204,10 @@ class Graphics:
             adj_angle = pull_towards_centers(angle)  # your function
             disp = radar_plot_text_displacement(adj_angle)  # your radial offset
 
-            if category == "MELODA":
+            if category == "MELODA5":
                 ax.text(
                     adj_angle,      # theta
-                    1.1 + disp/8,     # radius (adjust outward)
+                    1.1 + disp/8,   # radius (adjust outward)
                     labels[i],      # label text
                     ha='center', va='center'
                 )
@@ -230,11 +226,12 @@ class Graphics:
                 bbox_to_anchor=(1, 0, 0.5, 1.3),
                 fontsize=12)
 
-        plt.tight_layout(rect = [0, 0, 1, 0.94])
+        plt.tight_layout(rect = (0, 0, 1, 0.94))
 
 
     def create_second_figure(self, model_type="FAIR"):
-        
+        temp_y2 = list()
+
         if model_type == "FAIR":
             temp_y = self.data.FMMClassification_data_compliance_level
             if self.overlay_plots:
@@ -245,7 +242,7 @@ class Graphics:
                 temp_y2 = self.data2.mqa_model_data
         else:
             raise Exception("unknown model type, select MQA or FAIR")
-        
+
         nr_cols = len(list(temp_y2.keys()))
         # Set the number of divisions in each column
         num_divisions = 8
@@ -294,23 +291,17 @@ class Graphics:
 
         # Add the bar for each of the column based on the data received
         # TODO: Provide the data and scale between 0, 5.5
-        result_column_width = column_width / 2
-        bar_spacing = result_column_width / 2 
+        result_column_width = column_width / 2 - 0.1
+        bar_spacing = result_column_width / 2
         initial_position = column_width + column_distance
         position = [0] + [initial_position * i for i in range(1, num_divisions)]
 
-        
-            
         y = list()
-        for i in list(temp_y.keys()):
-            # The bar char start with min=0.5 and max=5.5, so we need to add 0.5 to the values
-            y.append(temp_y[i] * 5)
-        
+        y.extend(temp_y[i] * 5 for i in list(temp_y.keys()))
+
         if self.overlay_plots:
             y2 = list()
-            for i in list(temp_y2.keys()):
-            # The bar char start with min=0.5 and max=5.5, so we need to add 0.5 to the values
-                y2.append(temp_y2[i] * 5)
+            y2.extend(temp_y2[i] * 5 for i in list(temp_y2.keys()))
 
         # y = [0.5, 1.5, 3.5, 0.48]
         for i in range(nr_cols):
@@ -324,44 +315,49 @@ class Graphics:
             else:
                 ax.bar(position[i], y[i], bottom=0, alpha=0.9, color=self.color1, edgecolor='none', width=result_column_width)
             col_name = list(temp_y.keys())[i]
-            ax.text(x=position[i], y=-0.5, s=col_name, horizontalalignment='center', fontsize=18,
+            ax.text(x=position[i], y=-0.5, s=col_name, horizontalalignment='center', fontsize=16,
                     color=self.cmap(color_value), weight='semibold')
-            
-            
 
         # Hide the x-axis and y-axis
         ax.axis('on')
         ax.spines['top'].set_visible(False)
         ax.spines['right'].set_visible(False)
         ax.spines['bottom'].set_visible(False)
-        
+
         ax.set_xticks([])
         ax.set_xticklabels([])
-        
+
         tick_positions = [1, 2, 3, 4, 5]  # where ticks are located (y-axis)
         tick_labels = ['0.2', '0.4', '0.6', '0.8', '1.0']  # what the ticks should say
 
         ax.set_yticks(tick_positions)
         ax.set_yticklabels(tick_labels, fontsize=12)
-        
+
         # Set the limits for the x-axis and y-axis
-        ax.set_xlim([-1.25, (column_width + column_distance) * nr_cols - column_distance + column_width])
-        ax.set_ylim([0, 5])
+        ax.set_xlim((-1.25, (column_width + column_distance) * nr_cols - column_distance + column_width))
+        ax.set_ylim((0, 5))
 
         if model_type == "FAIR":
-            ax.set_title(label='FDM FAIRness Level score'+(f"\n{self.data_name} vs {self.data2_name}" if self.overlay_plots else ""), fontsize=24, color=self.cmap(1.0), weight='semibold')
+            ax.set_title(label='FDM FAIRness Level score'
+                               +(f"\n{self.data_name} vs {self.data2_name}" if self.overlay_plots else ""),
+                         fontsize=24,
+                         color=self.cmap(1.0),
+                         weight='semibold',
+                         pad=40)
         else:
-            ax.set_title(label='MQA score'+(f"\n{self.data_name} vs {self.data2_name}" if self.overlay_plots else ""), fontsize=24, color=self.cmap(1.0), weight='semibold')
+            ax.set_title(label='MQA score'+(f"\n{self.data_name} vs {self.data2_name}" if self.overlay_plots else ""),
+                         fontsize=24,
+                         color=self.cmap(1.0),
+                         weight='semibold',
+                         pad=40)
 
         if self.overlay_plots:
             ax.legend(loc="center right",
                     bbox_to_anchor=(0.62, 0.15, 0.5, 0.5),
                     fontsize=20)
-            
-        plt.tight_layout(rect=[0, 0, 1, 0.94])
 
-        
-        
+        plt.tight_layout(rect=(0, 0, 1, 0.94))
+
     def pie_chart(self, data, data_name=""):
         def func(pct, allvals):
             absolute = int(np.round(pct / 100. * np.sum(allvals)))
@@ -376,7 +372,7 @@ class Graphics:
 
         # Define colors for the wedges
         colors = [self.cmap(i / max(len(labels), 1)) for i in range(len(labels)+1)][-3:][::-1]
-        
+
         # Generate the pie chart
         wedges, texts, autotexts = ax.pie(sizes,
                                           colors=colors,
@@ -390,9 +386,15 @@ class Graphics:
                 path_effects.Stroke(linewidth=2, foreground='black'),  # Outline
                 path_effects.Normal()  # Original text
             ])
-        
+
         # Add a title
-        ax.set_title(label=f'Distribution of priorities'+(f"\n for {data_name}" if self.overlay_plots else ""), fontsize=24, color=self.cmap(1.0), weight='semibold')
+        ax.set_title(
+            label='Distribution of priorities'
+            + (f"\n for {data_name}" if data_name != "" else ""),
+            fontsize=24,
+            color=self.cmap(1.0),
+            weight='semibold',
+        )
 
         # legend
         ax.legend(wedges, labels,
@@ -402,7 +404,7 @@ class Graphics:
 
         # Hide the x-axis and y-axis
         ax.axis('off')
-        
+
         plt.tight_layout(rect=[0, 0, 1, 0.94])
 
     def cumulative_proportion_bar_chart(self):

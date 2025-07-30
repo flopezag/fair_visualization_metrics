@@ -31,14 +31,14 @@ This repository offers visualization tools to analyze FAIR levels across differe
 
 ## ⚙️ Setup
 
-Make sure you have **Python 3.11** or newer installed.
+Make sure you have **[Python 3.11](https://www.python.org/downloads)** or newer and **[uv](https://docs.astral.sh/uv/getting-started/installation)** installed.
 
 Example of how to install the required dependencies:
 
 ```bash
-python -m venv myenv
-source myenv/bin/activate               # Linux/macOS
-pip install -r requirements.txt
+uv venv --python 3.11
+source .venv/bin/activate               # Linux/macOS
+uv pip install -r requirements.txt
 ```
 
 ## 📊 Visualizing Metrics
