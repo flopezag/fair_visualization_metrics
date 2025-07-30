@@ -191,3 +191,4 @@ if __name__ == '__main__':
             fig.savefig(f"grouped_bar_chart_{i}.png", dpi=300, bbox_inches='tight')
 
     plt.show()
+    
