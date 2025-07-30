@@ -36,13 +36,13 @@ if __name__ == '__main__':
     
     #data = example_data()
     data = Data(json_file="example.json")
-    data2 = Data(json_file="hst.json")  # set to None if using only one data source
+    data2 = Data(json_file="example_new.json")  # set to None if using only one data source
     
     # data names are used only when both data sources are given and 
     # are used in graph titles, so there is no need to adjust them 
     # for single data source functionality 
-    data_name = "data1"
-    data_name2 = "data2"
+    data_name = "WFIPv2"
+    data_name2 = "WFIPv3"
     
     
     gph = Graphics(data=data, 
@@ -50,7 +50,7 @@ if __name__ == '__main__':
                    data_name=data_name,
                    data_name2=data_name2)
 
-    gph.create_first_figure(category=None) # this is for MELODA
+    gph.create_first_figure(category=None) # this is for MELODA5
 
     gph.create_first_figure(category='Findable')
     gph.create_first_figure(category='Accessible')
@@ -60,12 +60,12 @@ if __name__ == '__main__':
     gph.create_second_figure(model_type="FAIR")
     gph.create_second_figure(model_type="MQA")
 
-    gph.pie_chart(data, data_name)
+    gph.pie_chart(data)
     
-    if data2 is not None:
-        gph.pie_chart(data2, data_name2)
+    #if data2 is not None:
+    #    gph.pie_chart(data2, data_name2)
 
-    gph.cumulative_proportion_bar_chart()
+    #gph.cumulative_proportion_bar_chart()
     
     # Save all open figures
     if save_images:
