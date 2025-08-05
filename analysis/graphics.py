@@ -491,10 +491,21 @@ class Graphics:
         ax.yaxis.grid(True, linestyle='--', alpha=0.7)
 
         # Title
-        ax.set_title(f'Distribution of Priorities' + (f"\n for {self.data_name} and {self.data2_name}" if self.overlay_plots else ""),
-                    fontsize=24, color=self.cmap(1.0), weight='semibold')
+        ax.set_title(
+            (
+                'Distribution of Priorities'
+                + (
+                    f"\n for {self.data_name} and {self.data2_name}"
+                    if self.overlay_plots
+                    else ""
+                )
+            ),
+            fontsize=24,
+            color=self.cmap(1.0),
+            weight='semibold',
+        )
 
-        plt.tight_layout(rect=[0, 0, 1, 0.94])
+        plt.tight_layout(rect=(0, 0, 1, 0.94))
         
     
     def grouped_bar_chart(self, data_old, data_new=None, grouping="pilot", model_data="MQA"):
@@ -514,7 +525,7 @@ class Graphics:
             return (r + (1 - r) * amount,
                     g + (1 - g) * amount,
                     b + (1 - b) * amount)
-            
+
         def get_MELODA5_data(all_data):
             new_data = {}
             for pilot, data in all_data.items():
@@ -522,7 +533,7 @@ class Graphics:
                 for i, (_, value) in enumerate(data.meloda_model_data.items()):
                     new_data[pilot][f"MELODA{i+1}"] = value
             return new_data
-        
+
         def get_MQA_data(all_data):
             new_data = {}
             for pilot, data in all_data.items():
@@ -530,33 +541,31 @@ class Graphics:
                 for i, (key, value) in enumerate(data.mqa_model_data.items()):
                     new_data[pilot][key] = value
             return new_data
-        
+
         if model_data == "MELODA5":
             data_old = get_MELODA5_data(data_old)
-            if data_new != None:
+            figure_size = (12, 8)
+            if data_new is not None:
                 data_new = get_MELODA5_data(data_new)
         elif model_data == "MQA":
+            figure_size = (10, 8)
             data_old = get_MQA_data(data_old)
-            if data_new != None:
+            if data_new is not None:
                 data_new = get_MQA_data(data_new)
         else:
             raise Exception("model_data should be MQA or MELODA5")
-            
+
         # Convert to DataFrame
         df = pd.DataFrame(data_old).T
-        if data_new != None:
-            df_new = pd.DataFrame(data_new).T
-        else:
-            df_new = df
-
+        df_new = pd.DataFrame(data_new).T if data_new is not None else df
         bar_width = 0.7
-        
+
         # grouping by pilot
         if grouping == "pilot":
             index = df.index
             columns = df.columns
             columns_new = df_new.columns
-            
+
         # grouping by measure
         elif grouping == "measure":
             index = df.columns
@@ -566,29 +575,32 @@ class Graphics:
             df = df.loc
         else:
             raise Exception("please select grouping by 'pilot' or by 'meausre'.")
-        
+
         x = np.arange(len(index))
 
-        fig, ax = plt.subplots(figsize=(10, 6))
+        fig, ax = plt.subplots(figsize=figure_size)
 
         alpha_new = 0.9
         color_new = 0.1
-        # # Plot new dataset (transparent overlay)
+
+        # Plot new dataset (transparent overlay)
         for i, col in enumerate(columns_new):
-            ax.bar(x - bar_width/2.5 + i*bar_width/len(columns_new), df_new[col],
+            bar_x_coordinates = x - bar_width/2.5 + i*bar_width/len(columns_new)
+            ax.bar(bar_x_coordinates, df_new[col],
                 width=bar_width/len(columns_new), 
                 color=brighten_color(f"C{i}", amount=color_new), 
                 #edgecolor=darken_color(f"C{i}"),  # <-- darker hatch color
                 #hatch='///',                      # diagonal stripes
                 alpha=alpha_new)
 
-        if data_new != None:
+        if data_new is not None:
             alpha=0.8
             color_old = 0.85
             # # Plot old dataset
             for i, col in enumerate(columns):
-                ax.bar(x - bar_width/2.5 + i*bar_width/len(columns), df[col], 
-                    width=bar_width/len(columns), 
+                bar_x_coordinates = x - bar_width/2.5 + i*bar_width/len(columns)
+                ax.bar(bar_x_coordinates, df[col],
+                    width=bar_width/len(columns),
                     color='none',
                     edgecolor=darken_color(f"C{i}", amount=color_old),  # <-- darker hatch color
                     hatch='///',                      # diagonal stripes
@@ -599,24 +611,30 @@ class Graphics:
         #ax = df.plot(kind='bar', figsize=(10, 6))
         #ax.set_xticks(range(len(index)))  # positions
 
-        ax.set_xticks(x)
-        ax.set_xticklabels(index, rotation=0)  # now metrics are on x-axis
+        if model_data == "MELODA5":
+            long_labels = ['License of\ndata set', 'Access to\ndata', 'Technical\nstandard', 'Standardization',
+             'Geolocation\ncontent', 'Updating\nfrequency', 'Reputation', 'Dissemination']
+        else:
+            long_labels = index
 
-        ax.set_title(f"{model_data} score per {grouping}")
+        ax.set_xticks(x)
+        ax.set_xticklabels(long_labels, rotation=0)  # now metrics are on x-axis
+
+        ax.set_title(f"{model_data} score per {grouping}\n(Normalized)")
         ax.set_ylabel("Score")
         ax.set_xticks(range(len(index)))  # positions
-        ax.set_xticklabels(index, rotation=0)  # labels
+        ax.set_xticklabels(long_labels, rotation=0)  # labels
         ax.axis('on')
         ax.spines['top'].set_visible(False)
         ax.spines['right'].set_visible(False)
         ax.spines['left'].set_visible(False)
         for i in range(0, 12, 2):
             ax.axhline(i/10, color='grey', alpha=0.2, lw=1)
-            
-            # Custom legend handles
+
+        # Custom legend handles
         handles = []
         for i, col in enumerate(columns):
-            if data_new != None:
+            if data_new is not None:
                 solid_patch = mpatches.Patch(color=brighten_color(f"C{i}", amount=color_new), label=f"{col} (new)", alpha=alpha_new)
                 hatch_patch = mpatches.Patch(facecolor='none',
                                             edgecolor=darken_color(f"C{i}", amount=0.85),  # <-- darker hatch color
@@ -628,7 +646,7 @@ class Graphics:
             else:
                 solid_patch = mpatches.Patch(color=brighten_color(f"C{i}", amount=color_new), label=f"{col}", alpha=alpha_new)
                 handles.append(solid_patch)
-                
+
         ax.legend(
             handles=handles,
             title="",
@@ -637,5 +655,6 @@ class Graphics:
             ncol=len(columns),
             frameon=False
         )
+
         plt.tight_layout()
         

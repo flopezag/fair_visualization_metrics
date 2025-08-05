@@ -34,19 +34,19 @@ if __name__ == '__main__':
     
     save_images = True
     
-    es_pilot_old = Data(json_file="hidr.json")
-    de_pilot_old = Data(json_file="hst.json")
-    fi_pilot_old = Data(json_file="keypro.json")
-    ne_pilot_old = Data(json_file="pwn.json")
-    uk_pilot_old = Data(json_file="sww.json")
-    cy_pilot_old = Data(json_file="wbl.json")
+    es_pilot_old = Data(json_file="v2/HIDR/hidr.json")
+    de_pilot_old = Data(json_file="v2/HST/hst.json")
+    fi_pilot_old = Data(json_file="v2/KEYPRO/keypro.json")
+    ne_pilot_old = Data(json_file="v2/PWN/pwn.json")
+    uk_pilot_old = Data(json_file="v2/SWW/sww.json")
+    cy_pilot_old = Data(json_file="v2/WBL/wbl.json")
     
-    es_pilot_new = Data(json_file="hidr.json")
-    de_pilot_new = Data(json_file="hst.json")
-    fi_pilot_new = Data(json_file="keypro.json")
-    ne_pilot_new = Data(json_file="pwn.json")
-    uk_pilot_new = Data(json_file="sww.json")
-    cy_pilot_new = Data(json_file="wbl.json")
+    es_pilot_new = Data(json_file="v2/HIDR/hidr.json")
+    de_pilot_new = Data(json_file="v2/HST/hst.json")
+    fi_pilot_new = Data(json_file="v2/KEYPRO/keypro.json")
+    ne_pilot_new = Data(json_file="v2/PWN/pwn.json")
+    uk_pilot_new = Data(json_file="v2/SWW/sww.json")
+    cy_pilot_new = Data(json_file="v2/WBL/wbl.json")
     
     data_old = {
         "es pilot": es_pilot_old,
