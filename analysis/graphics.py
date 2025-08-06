@@ -237,11 +237,14 @@ class Graphics:
         temp_y2 = list()
 
         if model_type == "FAIR":
+            # bias is the shift of the starting positions of the graph in y direction
+            # FAIR metrics Level 0 starts at 0.5 so we shift the values by 0.5 later in the code
             bias = 0.5
             temp_y = self.data.FMMClassification_data_compliance_level
             if self.overlay_plots:
                 temp_y2 = self.data2.FMMClassification_data_compliance_level
         elif model_type == "MQA":
+            # MQA metrics visualization starts at 0.0 so the bias is 0
             bias = 0
             temp_y = self.data.mqa_model_data
             if self.overlay_plots:
@@ -282,10 +285,8 @@ class Graphics:
                 ax.bar(x, 1, bottom=j, color=color, edgecolor='none', width=column_width)
 
         if model_type == "FAIR":
-            # Add white lines at the top of each division within the column
-            y = (num_divisions - 1) + 0.5 - 0.02  # the lines have linewidth=3, so to center the line we need to rest 0.01
-            # TODO: need to calculate -0.1 in function of the dimensions of the case, 0.1 is = -0.1 + 0.2
-            #  (extension of the line)
+            # Add grey dotted lines and white dashes at each level of FAIR metric
+            y = (num_divisions - 1) + 0.5 - 0.02
             x1, y1 = [-0.07, 0.07], [y, y]
             inc_x = [column_width+column_distance, column_width+column_distance]
             level_y_positions = [y, y-2, y-4, y-5]
@@ -301,12 +302,12 @@ class Graphics:
             ax.axhline(i, color='black', alpha=0.3, lw=1)
 
         # Add the bar for each of the column based on the data received
-        # TODO: Provide the data and scale between 0, 5.5
         result_column_width = column_width / 2 - 0.1
         bar_spacing = result_column_width / 2
         initial_position = column_width + column_distance
         position = [0] + [initial_position * i for i in range(1, num_divisions)]
 
+        # scaling the data between 0 and 5 or 0.5 and 5.5 depending on the bias term
         y = list()
         y.extend(temp_y[i] * 5 + bias for i in list(temp_y.keys()))
 
@@ -314,6 +315,7 @@ class Graphics:
             y2 = list()
             y2.extend(temp_y2[i] * 5 + bias for i in list(temp_y2.keys()))
 
+        # draw bar plots
         for i in range(nr_cols):
             if self.overlay_plots:
                 if i == 0:
@@ -331,6 +333,7 @@ class Graphics:
         # Set the limits for the x-axis and y-axis
         ax.set_xlim((-1.25, (column_width + column_distance) * nr_cols - column_distance + column_width))
         
+        # modify or draw the additional information to a graph
         if model_type == "FAIR":
             ax.axis('off')
             ax.set_ylim((0, 6))
