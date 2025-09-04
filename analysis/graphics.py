@@ -311,11 +311,11 @@ class Graphics:
         for i in range(nr_cols):
             if self.overlay_plots:
                 if i == 0:
-                    ax.bar(position[i]-bar_spacing, y2[i], bottom=0, alpha=0.9, color=self.color1, edgecolor='none', width=result_column_width, label=self.data_name)
-                    ax.bar(position[i]+bar_spacing, y[i], bottom=0, alpha=0.9, color=self.color2, edgecolor='none', width=result_column_width, label=self.data2_name)
+                    ax.bar(position[i]-bar_spacing, y[i], bottom=0, alpha=0.9, color=self.color1, edgecolor='none', width=result_column_width, label=self.data_name)
+                    ax.bar(position[i]+bar_spacing, y2[i], bottom=0, alpha=0.9, color=self.color2, edgecolor='none', width=result_column_width, label=self.data2_name)
                 else:
-                    ax.bar(position[i]-bar_spacing, y2[i], bottom=0, alpha=0.9, color=self.color1, edgecolor='none', width=result_column_width)
-                    ax.bar(position[i]+bar_spacing, y[i], bottom=0, alpha=0.9, color=self.color2, edgecolor='none', width=result_column_width)
+                    ax.bar(position[i]-bar_spacing, y[i], bottom=0, alpha=0.9, color=self.color1, edgecolor='none', width=result_column_width)
+                    ax.bar(position[i]+bar_spacing, y2[i], bottom=0, alpha=0.9, color=self.color2, edgecolor='none', width=result_column_width)
             else:
                 ax.bar(position[i], y[i], bottom=0, alpha=0.9, color=self.color1, edgecolor='none', width=result_column_width)
             col_name = list(temp_y.keys())[i]
