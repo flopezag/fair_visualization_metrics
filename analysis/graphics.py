@@ -231,16 +231,21 @@ class Graphics:
                 fontsize=12)
 
         plt.tight_layout(rect = (0, 0, 1, 0.94))
-
-
+        
+        
     def create_second_figure(self, model_type="FAIR"):
         temp_y2 = list()
 
         if model_type == "FAIR":
+            # bias is the shift of the starting positions of the graph in y direction
+            # FAIR metrics Level 0 starts at 0.5 so we shift the values by 0.5 later in the code
+            bias = 0.5
             temp_y = self.data.FMMClassification_data_compliance_level
             if self.overlay_plots:
                 temp_y2 = self.data2.FMMClassification_data_compliance_level
         elif model_type == "MQA":
+            # MQA metrics visualization starts at 0.0 so the bias is 0
+            bias = 0
             temp_y = self.data.mqa_model_data
             if self.overlay_plots:
                 temp_y2 = self.data2.mqa_model_data
@@ -249,10 +254,10 @@ class Graphics:
 
         nr_cols = len(list(temp_y2.keys()))
         # Set the number of divisions in each column
-        num_divisions = 8
+        num_divisions = 6
 
         # Create the figure and axes
-        fig, ax = plt.subplots(figsize=(13, 8))
+        fig, ax = plt.subplots(figsize=(15, 8))
 
         # Set the width of each column
         column_width = 0.6
@@ -279,35 +284,38 @@ class Graphics:
                 # Plot the bar for the division
                 ax.bar(x, 1, bottom=j, color=color, edgecolor='none', width=column_width)
 
-        # Add white lines at the top of each division within the column
-        y = (num_divisions - 1) + 0.5 - 0.02  # the lines have linewidth=3, so to center the line we need to rest 0.01
-        # TODO: need to calculate -0.1 in function of the dimensions of the case, 0.1 is = -0.1 + 0.2
-        #  (extension of the line)
-        x1, y1 = [-0.07, 0.07], [y, y]
-        inc_x = [column_width+column_distance, column_width+column_distance]
-        for i in range(num_divisions):
-            plt.plot(x1, y1, color="white", linewidth=4)
-            x1, y1 = [x1[i] + inc_x[i] for i in range(len(x1))], [y, y]
+        if model_type == "FAIR":
+            # Add grey dotted lines and white dashes at each level of FAIR metric
+            y = (num_divisions - 1) + 0.5 - 0.02
+            x1, y1 = [-0.07, 0.07], [y, y]
+            inc_x = [column_width+column_distance, column_width+column_distance]
+            level_y_positions = [y, y-2, y-4, y-5]
+            for y in level_y_positions:
+                x1, y1 = [-0.07, 0.07], [y, y]
+                ax.axhline(y, color='grey', lw=1, linestyle=':')
+                for j in range(4):
+                    plt.plot(x1, y1, color="white", linewidth=4)
+                    x1, y1 = [x1[i] + inc_x[i] for i in range(len(x1))], [y, y]
 
         # Add the division's lines for each column
         for i in range(7):
             ax.axhline(i, color='black', alpha=0.3, lw=1)
 
         # Add the bar for each of the column based on the data received
-        # TODO: Provide the data and scale between 0, 5.5
         result_column_width = column_width / 2 - 0.1
         bar_spacing = result_column_width / 2
         initial_position = column_width + column_distance
         position = [0] + [initial_position * i for i in range(1, num_divisions)]
 
+        # scaling the data between 0 and 5 or 0.5 and 5.5 depending on the bias term
         y = list()
-        y.extend(temp_y[i] * 5 for i in list(temp_y.keys()))
+        y.extend(temp_y[i] * 5 + bias for i in list(temp_y.keys()))
 
         if self.overlay_plots:
             y2 = list()
-            y2.extend(temp_y2[i] * 5 for i in list(temp_y2.keys()))
+            y2.extend(temp_y2[i] * 5 + bias for i in list(temp_y2.keys()))
 
-        # y = [0.5, 1.5, 3.5, 0.48]
+        # draw bar plots
         for i in range(nr_cols):
             if self.overlay_plots:
                 if i == 0:
@@ -320,45 +328,66 @@ class Graphics:
                 ax.bar(position[i], y[i], bottom=0, alpha=0.9, color=self.color1, edgecolor='none', width=result_column_width)
             col_name = list(temp_y.keys())[i]
             ax.text(x=position[i], y=-0.5, s=col_name, horizontalalignment='center', fontsize=16,
-                    color=self.cmap(color_value), weight='semibold')
-
-        # Hide the x-axis and y-axis
-        ax.axis('on')
-        ax.spines['top'].set_visible(False)
-        ax.spines['right'].set_visible(False)
-        ax.spines['bottom'].set_visible(False)
-
-        ax.set_xticks([])
-        ax.set_xticklabels([])
-
-        tick_positions = [1, 2, 3, 4, 5]  # where ticks are located (y-axis)
-        tick_labels = ['0.2', '0.4', '0.6', '0.8', '1.0']  # what the ticks should say
-
-        ax.set_yticks(tick_positions)
-        ax.set_yticklabels(tick_labels, fontsize=12)
+                    color=self.cmap(color_value), weight='semibold')      
 
         # Set the limits for the x-axis and y-axis
         ax.set_xlim((-1.25, (column_width + column_distance) * nr_cols - column_distance + column_width))
-        ax.set_ylim((0, 5))
-
+        
+        # modify or draw the additional information to a graph
         if model_type == "FAIR":
+            ax.axis('off')
+            ax.set_ylim((0, 6))
             ax.set_title(label='FDM FAIRness Level score'
                                +(f"\n{self.data_name} vs {self.data2_name}" if self.overlay_plots else ""),
                          fontsize=24,
                          color=self.cmap(1.0),
                          weight='semibold',
                          pad=40)
+            
         else:
+            ax.axis('on')
+            ax.spines['top'].set_visible(False)
+            ax.spines['right'].set_visible(False)
+            ax.spines['bottom'].set_visible(False)
+
+            ax.set_xticks([])
+            ax.set_xticklabels([])
+
+            tick_positions = [1, 2, 3, 4, 5]  # where ticks are located (y-axis)
+            tick_labels = ['0.2', '0.4', '0.6', '0.8', '1.0']  # what the ticks should say
+
+            ax.set_yticks(tick_positions)
+            ax.set_yticklabels(tick_labels, fontsize=12)
+            ax.set_ylim((0, 5))
             ax.set_title(label='MQA score'+(f"\n{self.data_name} vs {self.data2_name}" if self.overlay_plots else ""),
                          fontsize=24,
                          color=self.cmap(1.0),
                          weight='semibold',
                          pad=40)
-
-        if self.overlay_plots:
-            ax.legend(loc="center right",
-                    bbox_to_anchor=(0.62, 0.15, 0.5, 0.5),
-                    fontsize=20)
+            
+        if model_type == "FAIR":
+            # Add level labels on right side (Level 3 to 0)
+            level_labels = [
+                "Level 3: FAIR essential criteria + important criteria     \n             + useful criteria",
+                "Level 2: FAIR essential criteria + important criteria     ",
+                "Level 1: FAIR essential criteria only",
+                "Level 0: No Fair"
+            ]
+            
+            for label, y in zip(level_labels, level_y_positions):
+                ax.text(5.5, y, label, va='center', fontsize=12, fontweight='bold', color='red')
+                
+            if self.overlay_plots:
+                ax.legend(loc="upper right",
+                        bbox_to_anchor=(1.4, 1.2),
+                        ncol=2,
+                        fontsize=20)
+        
+        else:    
+            if self.overlay_plots:
+                ax.legend(loc="center right",
+                        bbox_to_anchor=(0.62, 0.15, 0.5, 0.5),
+                        fontsize=20)
 
         plt.tight_layout(rect=(0, 0, 1, 0.94))
 
